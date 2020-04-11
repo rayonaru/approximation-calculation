@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Charts</title>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<link rel="stylesheet" href="source/css/style.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+</head>
+<body>
+	<div class="chart-container">
+		<div id="chart" style="width:90%;height:900px"></div>
+	</div>
+	<div class="result-container">
+			<table class="w3-table w3-striped">
+				<thead>
+					<th>i</th>
+					<th>x</th>
+					<th>y</th>
+					<th>Линейная регрессия</th>
+					<th>Степенная регрессия</th>
+					<th>Экспоненциальная регрессия</th>
+					<th>Полиномиальная регрессия</th>
+				</thead>
+				<tbody id="resultBody"></tbody>
+			</table>
+		</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	//var def = [ 
+		//[ 0.3, 0.5, 0.8, 1.0, 1.2, 1.5, 1.7, 2.0, 2.3, 2.5, 0.2, 0.5, 0.7, 1.0, 1.2, 1.5, 1.8, 2.0, 2.3, 2.5 ], 
+		//[ 0.3, 1.9, 3.2, 1.6, 3.3, 4.3, 4.8, 6.4, 6.1, 7.4, 2.0, 0.1, 0.7, 0.7, 0.4, 2.2, 2.0, 3.0, 4.4, 3.6 ] 
+	//];
+	//
+
+	var def = [ 
+		[ 0.2, 0.3, 0.5, 0.5, 0.7, 0.8, 1.0, 1.0, 1.2, 1.2, 1.5, 1.5, 1.7, 1.8, 2.0, 2.0, 2.3, 2.3, 2.5, 2.5 ], 
+		[ 2.0, 0.3, 1.9, 0.1, 0.7, 3.2, 1.6, 0.7, 3.3, 0.4, 4.3, 2.2, 4.8, 2.0, 6.4, 3.0, 6.1, 4.4, 7.4, 3.6 ] 
+	];
+
+	var data = [{
+			x: def[0],
+	  	y: def[1],
+	  	mode: 'markers',
+	  	name: 'Заданные точки'
+		}, {
+			x: def[0],
+		  y: getLineApprox(def),
+			mode: 'lines',
+			name: 'Линейная аппроксимация'
+		}, {
+			x: def[0],
+		  y: getPowApprox(def),
+			mode: 'lines',
+			name: 'Степенная аппроксимация'
+		}, {
+			x: def[0],
+		  y: getExpApprox(def),
+		  mode: 'lines',
+			name: 'Экспоненциальная аппроксимация'
+		}, {
+			x: def[0],
+		  y: getPolyApprox(def),
+		  mode: 'lines',
+			name: 'Полиномиальная аппроксимация'
+		}];
+
+	drawGraph(def, data);
+	fillResultTable(def, getLineApprox(def), getPowApprox(def), getExpApprox(def), getPolyApprox(def));
+
+	function drawGraph(def, data) {
+		var layout = {
+  		title:'Аппроксимация экспериментальных данных методом наименьших квадратов'
+		};
+		Plotly.newPlot('chart', data, layout);
+	}
+
+	function getLineApprox (def) {
+		var dotCount = def[0].length;
+		var sumx = 0;
+		var sumy = 0;
+		var sumx2 = 0;
+		var sumxy = 0;
+
+		for (var i = 0; i < dotCount; i++) {
+			sumx += def[0][i];
+			sumy += def[1][i];
+			sumx2 += def[0][i] * def[0][i];
+			sumxy += def[0][i] * def[1][i];
+		};
+		
+		var a = (dotCount * sumxy - (sumx * sumy)) / (dotCount * sumx2 - sumx * sumx); 
+		var b = (sumy - a * sumx) / dotCount;
+
+		var newY = [];
+		for (var i = 0; i < def[0].length; i++) {
+			var x = def[0][i];
+			newY[i] = a * x + b; 
+		};
+		return newY;
+	}
+
+	function getPowApprox(def) {
+		var dotCount = def[0].length;
+		var sumx = 0;
+		var sumy = 0;
+		var sumx2 = 0;
+		var sumxy = 0;
+
+		for (var i = 0; i < dotCount; i++) {
+			sumx += Math.log(def[0][i]);
+			sumy += Math.log(def[1][i]);
+			sumx2 += Math.log(def[0][i]) * Math.log(def[0][i]);
+			sumxy += Math.log(def[0][i]) * Math.log(def[1][i]);
+		};
+		
+		var b = (dotCount * sumxy - sumx * sumy) / (dotCount * sumx2 - sumx * sumx);
+		var a = Math.exp(1 / dotCount * sumy - b / dotCount * sumx );
+
+		var newY = [];
+		for (var i = 0; i < def[0].length; i++) {
+			var x = def[0][i];
+			newY[i] = a * Math.pow(x, b); 
+		};
+		return newY;
+	}
+
+	function getExpApprox(def) {
+		var dotCount = def[0].length;
+		var sumx = 0;
+		var sumy = 0;
+		var sumx2 = 0;
+		var sumxy = 0;
+
+		for (var i = 0; i < dotCount; i++) {
+			sumx += def[0][i];
+			sumy += Math.log(def[1][i]);
+			sumx2 += def[0][i] * def[0][i];
+			sumxy += def[0][i] * Math.log(def[1][i]);
+		};
+		
+		var b = (dotCount * sumxy - sumx * sumy) / (dotCount * sumx2 - sumx * sumx);
+		var a = (1 * sumy / dotCount) - (b * sumx / dotCount);
+
+		var newY = [];
+		for (var i = 0; i < def[0].length; i++) {
+			var x = def[0][i];
+			newY[i] = Math.pow(Math.E, a + x * b); 
+		};
+		return newY;	
+	}
+
+	function getPolyApprox(def) {
+		var n = def[0].length;
+		var SumX = 0;
+    var SumY = 0;
+    var SumX2 = 0;
+    var SumXY = 0;
+    var SumX3 = 0;
+    var SumX4 = 0;
+    var SumX2Y = 0;
+
+    for (var i = 0; i < n; i++) {
+        SumX += def[0][i];
+        SumY += def[1][i];
+        SumX2 += def[0][i] * def[0][i];
+        SumXY += def[0][i] * def[1][i];
+        SumX3 += def[0][i] * def[0][i] * def[0][i];
+        SumX4 += def[0][i] * def[0][i] * def[0][i] * def[0][i];
+        SumX2Y += def[0][i] * def[0][i] * def[1][i];
+    };
+
+    var OPR = n * SumX2 * SumX4 + SumX * SumX3 * SumX2 + SumX2 * SumX * SumX3 - SumX2 * SumX2 * SumX2 - n * SumX3 * SumX3 - SumX * SumX * SumX4;
+    var a = (n * SumX2 * SumX2Y + SumX * SumXY * SumX2 + SumY * SumX * SumX3 - SumY * SumX2 * SumX2 - n * SumXY * SumX3 - SumX * SumX * SumX2Y) / OPR;
+    var b = (n * SumXY * SumX4 + SumY * SumX3 * SumX2 + SumX2 * SumX * SumX2Y - SumX2 * SumX2 * SumXY - n * SumX3 * SumX2Y - SumY * SumX * SumX4) / OPR;
+    var c = (SumY * SumX2 * SumX4 + SumX * SumX2Y * SumX3 + SumX2 * SumXY * SumX3 - SumX2 * SumX2 * SumX2Y - SumY * SumX3 * SumX3 - SumX * SumXY * SumX4) / OPR;
+
+		var newY = [];
+		for (var i = 0; i < def[0].length; i++) {
+			newY[i] = a * def[0][i] * def[0][i] + b * def[0][i] + c;
+		};
+		return newY;	
+	}
+
+	function fillResultTable(def, lineApproxY, powApproxY, expApproxY, polyApproxY) {
+		debugger;
+		var tbody = document.getElementById('resultBody');
+		var data = "";
+		for (var i = 0; i < def[0].length; i++) {
+			data += '<tr><td>' + (i + 1) + '</td><td>' + def[0][i]  + '</td><td>' + def[1][i]  + '</td><td>' + lineApproxY[i]  + '</td><td>' + powApproxY[i]  + '</td><td>' + expApproxY[i]  + '</td><td>' + polyApproxY[i]  + '</td></tr>'
+		}
+		tbody.innerHTML = data;
+	}
+
+</script>
