@@ -12,9 +12,19 @@
 	<div class="chart-container">
 		<div id="chart" style="width:90%;height:900px"></div>
 	</div>
-			<div style="margin-left: 110px"><h3>Результаты</h3></div>
+	<div class="coefficients-container">
+		<table class="w3-table">
+			<thead>
+				<th>Линейная регрессия</th>
+				<th>Степенная регрессия</th>
+				<th>Экспоненциальная регрессия</th>
+				<th>Полиномиальная регрессия</th>
+			</thead>
+			<tbody id="coefficientsBody"></tbody>
+		</table>
+	</div>
 	<div class="result-container">
-			<table class="w3-table w3-striped">
+			<table class="w3-table-all w3-small">
 				<thead>
 					<th>i</th>
 					<th>x</th>
@@ -35,6 +45,8 @@
 		//[ 0.3, 0.5, 0.8, 1.0, 1.2, 1.5, 1.7, 2.0, 2.3, 2.5, 0.2, 0.5, 0.7, 1.0, 1.2, 1.5, 1.8, 2.0, 2.3, 2.5 ], 
 		//[ 0.3, 1.9, 3.2, 1.6, 3.3, 4.3, 4.8, 6.4, 6.1, 7.4, 2.0, 0.1, 0.7, 0.7, 0.4, 2.2, 2.0, 3.0, 4.4, 3.6 ] 
 	//];
+	//0.2, 0.4, 0.6, 0.8, 1.1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.3, 3.6, 3.8, 4.0
+	//2.3 0.6, 2.5, 1.5, 1.8, 1.0, 2.6, 0.4, 1.4, 2.8, 3.5, 3.2, 5.5, 6.6, 5.2, 7.0, 5.5, 8.0, 7.4, 11.4
 
 	var def = [ 
 		[ 0.2, 0.3, 0.5, 0.5, 0.7, 0.8, 1.0, 1.0, 1.2, 1.2, 1.5, 1.5, 1.7, 1.8, 2.0, 2.0, 2.3, 2.3, 2.5, 2.5 ], 
@@ -48,22 +60,22 @@
 	  	name: 'Заданные точки'
 		}, {
 			x: def[0],
-		  y: getLineApprox(def),
+		  y: getLineApprox(def).newY,
 			mode: 'lines',
 			name: 'Линейная аппроксимация'
 		}, {
 			x: def[0],
-		  y: getPowApprox(def),
+		  y: getPowApprox(def).newY,
 			mode: 'lines',
 			name: 'Степенная аппроксимация'
 		}, {
 			x: def[0],
-		  y: getExpApprox(def),
+		  y: getExpApprox(def).newY,
 		  mode: 'lines',
 			name: 'Экспоненциальная аппроксимация'
 		}, {
 			x: def[0],
-		  y: getPolyApprox(def),
+		  y: getPolyApprox(def).newY,
 		  mode: 'lines',
 			name: 'Полиномиальная аппроксимация'
 		}];
@@ -100,7 +112,11 @@
 			var x = def[0][i];
 			newY[i] = a * x + b; 
 		};
-		return newY;
+		return {
+			newY: newY,
+			a: a,
+			b: b
+		};
 	}
 
 	function getPowApprox(def) {
@@ -125,7 +141,11 @@
 			var x = def[0][i];
 			newY[i] = a * Math.pow(x, b); 
 		};
-		return newY;
+		return {
+			newY: newY,
+			a: a,
+			b: b
+		};
 	}
 
 	function getExpApprox(def) {
@@ -150,7 +170,11 @@
 			var x = def[0][i];
 			newY[i] = Math.pow(Math.E, a + x * b); 
 		};
-		return newY;	
+		return {
+			newY: newY,
+			a: a,
+			b: b
+		};
 	}
 
 	function getPolyApprox(def) {
@@ -182,7 +206,12 @@
 		for (var i = 0; i < def[0].length; i++) {
 			newY[i] = a * def[0][i] * def[0][i] + b * def[0][i] + c;
 		};
-		return newY;	
+		return {
+			newY: newY,
+			a: a,
+			b: b,
+			c: c
+		};
 	}
 
 	function fillResultTable(def, lineApproxY, powApproxY, expApproxY, polyApproxY) {
@@ -190,9 +219,12 @@
 		var tbody = document.getElementById('resultBody');
 		var data = "";
 		for (var i = 0; i < def[0].length; i++) {
-			data += '<tr><td>' + (i + 1) + '</td><td>' + def[0][i]  + '</td><td>' + def[1][i]  + '</td><td>' + lineApproxY[i]  + '</td><td>' + powApproxY[i]  + '</td><td>' + expApproxY[i]  + '</td><td>' + polyApproxY[i]  + '</td></tr>'
+			data += '<tr><td>' + (i + 1) + '</td><td>' + def[0][i]  + '</td><td>' + def[1][i]  + '</td><td>' + lineApproxY.newY[i]  + '</td><td>' + powApproxY.newY[i]  + '</td><td>' + expApproxY.newY[i]  + '</td><td>' + polyApproxY.newY[i]  + '</td></tr>';
 		}
 		tbody.innerHTML = data;
+		var n = 4
+		var coefficientsBody = document.getElementById('coefficientsBody');
+		coefficientsBody.innerHTML = '<tr><td>y = ' + lineApproxY.a.toFixed(n) + 'x + ' + lineApproxY.b.toFixed(n) + '</td><td>y = ' + powApproxY.a.toFixed(n) + 'x<sup>' + powApproxY.b.toFixed(n) + '</sup></td><td>y = e<sup>' + expApproxY.a.toFixed(n) + ' + ' + expApproxY.b.toFixed(n) + 'x</sup></td><td>y = ' + polyApproxY.a.toFixed(n) + 'x * x + ' + polyApproxY.b.toFixed(n) + 'x + ' + polyApproxY.c.toFixed(n) + '</td></tr>';
 	}
 
 </script>
