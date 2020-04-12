@@ -12,6 +12,21 @@
 	<div class="chart-container">
 		<div id="chart" style="width:90%;height:900px"></div>
 	</div>
+	<div class="data-input-container">
+		<div class="x-input">
+			<label>Введите значения X через пробел</label>
+			<input class="w3-input w3-border w3-round-large" type="textarea" id="x" value="0.2 0.3 0.5 0.5 0.7 0.8 1.0 1.0 1.2 1.2 1.5 1.5 1.7 1.8 2.0 2.0 2.3 2.3 2.5 2.5">
+		</div>
+		<div class="y-input">
+			<label>Введите значения Y через пробел</label>
+			<input class="w3-input w3-border w3-round-large" type="textarea" id="y" value="2.0 0.3 1.9 0.1 0.7 3.2 1.6 0.7 3.3 0.4 4.3 2.2 4.8 2.0 6.4 3.0 6.1 4.4 7.4 3.6">
+		</div>
+	</div>
+	<div class="button-container">
+		<div class="calculate">
+			<button class="w3-button w3-white w3-border" onclick="calculate('click')">Рассчитать</button>
+		</div>
+	</div>
 	<div class="coefficients-container">
 		<table class="w3-table">
 			<thead>
@@ -37,65 +52,73 @@
 				<tbody id="resultBody"></tbody>
 			</table>
 	</div>
-	<div class="data-container">
-		<table class="w3-table">
-			<thead>
-				<th>Исходные данные</th>
-			</thead>
-			<tbody id="dataBody"></tbody>
-		</table>
-	</div>
 </body>
 </html>
 
 <script type="text/javascript">
-	//var def = [ 
-		//[ 0.3, 0.5, 0.8, 1.0, 1.2, 1.5, 1.7, 2.0, 2.3, 2.5, 0.2, 0.5, 0.7, 1.0, 1.2, 1.5, 1.8, 2.0, 2.3, 2.5 ], 
-		//[ 0.3, 1.9, 3.2, 1.6, 3.3, 4.3, 4.8, 6.4, 6.1, 7.4, 2.0, 0.1, 0.7, 0.7, 0.4, 2.2, 2.0, 3.0, 4.4, 3.6 ] 
-	//];
-	//0.2, 0.4, 0.6, 0.8, 1.1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.3, 3.6, 3.8, 4.0
-	//2.3 0.6, 2.5, 1.5, 1.8, 1.0, 2.6, 0.4, 1.4, 2.8, 3.5, 3.2, 5.5, 6.6, 5.2, 7.0, 5.5, 8.0, 7.4, 11.4
-
-	var def = [ 
-		[ 0.2, 0.3, 0.5, 0.5, 0.7, 0.8, 1.0, 1.0, 1.2, 1.2, 1.5, 1.5, 1.7, 1.8, 2.0, 2.0, 2.3, 2.3, 2.5, 2.5 ], 
-		[ 2.0, 0.3, 1.9, 0.1, 0.7, 3.2, 1.6, 0.7, 3.3, 0.4, 4.3, 2.2, 4.8, 2.0, 6.4, 3.0, 6.1, 4.4, 7.4, 3.6 ] 
-	];
-
-	var data = [{
-			x: def[0],
-	  	y: def[1],
-	  	mode: 'markers',
-	  	name: 'Заданные точки'
-		}, {
-			x: def[0],
-		  y: getLineApprox(def).newY,
-			mode: 'lines',
-			name: 'Линейная аппроксимация'
-		}, {
-			x: def[0],
-		  y: getPowApprox(def).newY,
-			mode: 'lines',
-			name: 'Степенная аппроксимация'
-		}, {
-			x: def[0],
-		  y: getExpApprox(def).newY,
-		  mode: 'lines',
-			name: 'Экспоненциальная аппроксимация'
-		}, {
-			x: def[0],
-		  y: getPolyApprox(def).newY,
-		  mode: 'lines',
-			name: 'Полиномиальная аппроксимация'
-		}];
-
-	drawGraph(def, data);
-	fillTables(def, getLineApprox(def), getPowApprox(def), getExpApprox(def), getPolyApprox(def));
+	
+	calculate(null);
 
 	function drawGraph(def, data) {
 		var layout = {
   		title:'Аппроксимация экспериментальных данных методом наименьших квадратов'
 		};
 		Plotly.newPlot('chart', data, layout);
+	}
+
+	function calculate (click) {
+		debugger;
+		var def = [ [], [] ];
+		if (click === null) {
+			def[0] = [ 0.2, 0.3, 0.5, 0.5, 0.7, 0.8, 1.0, 1.0, 1.2, 1.2, 1.5, 1.5, 1.7, 1.8, 2.0, 2.0, 2.3, 2.3, 2.5, 2.5 ];
+			def[1] = [ 2.0, 0.3, 1.9, 0.1, 0.7, 3.2, 1.6, 0.7, 3.3, 0.4, 4.3, 2.2, 4.8, 2.0, 6.4, 3.0, 6.1, 4.4, 7.4, 3.6 ];
+		}else{
+			var xinput = document.getElementById('x');
+			a = xinput.value.split(' ');
+			def[0] = a.map(function (x) { 
+  			return parseFloat(x); 
+			});
+
+			var yinput = document.getElementById('y');
+			b = yinput.value.split(' ');
+			def[1] = b.map(function (x) { 
+  			return parseFloat(x);
+			});
+		}
+
+
+		var data = [{
+				x: def[0],
+		  	y: def[1],
+		  	mode: 'markers',
+		  	name: 'Заданные точки'
+			}, {
+				x: def[0],
+			  y: getLineApprox(def).newY,
+				mode: 'lines',
+				name: 'Линейная аппроксимация'
+			}, {
+				x: def[0],
+			  y: getPowApprox(def).newY,
+				mode: 'lines',
+				name: 'Степенная аппроксимация'
+			}, {
+				x: def[0],
+			  y: getExpApprox(def).newY,
+			  mode: 'lines',
+				name: 'Экспоненциальная аппроксимация'
+			}, {
+				x: def[0],
+			  y: getPolyApprox(def).newY,
+			  mode: 'lines',
+				name: 'Полиномиальная аппроксимация'
+			}];
+
+		drawGraph(def, data);
+		fillTables(def, getLineApprox(def), getPowApprox(def), getExpApprox(def), getPolyApprox(def));
+;
+		var yinput = document.getElementById('y');
+		data[1] = yinput.value.split(' ');
 	}
 
 	function getLineApprox (def) {
@@ -233,27 +256,6 @@
 		var n = 4
 		var coefficientsBody = document.getElementById('coefficientsBody');
 		coefficientsBody.innerHTML = '<tr><td>y = ' + lineApproxY.a.toFixed(n) + 'x + ' + lineApproxY.b.toFixed(n) + '</td><td>y = ' + powApproxY.a.toFixed(n) + 'x<sup>' + powApproxY.b.toFixed(n) + '</sup></td><td>y = e<sup>' + expApproxY.a.toFixed(n) + ' + ' + expApproxY.b.toFixed(n) + 'x</sup></td><td>y = ' + polyApproxY.a.toFixed(n) + 'x * x + ' + polyApproxY.b.toFixed(n) + 'x + ' + polyApproxY.c.toFixed(n) + '</td></tr>';
-		
-		var dataBody = document.getElementById('dataBody');
-		var _thx = document.createElement('th');
-		_thx.innerHTML = 'x';
-		var _trx = document.createElement('tr');
-		_trx.appendChild(_thx);
-		var _thy = document.createElement('th');
-		_thy.innerHTML = 'y';
-		var _try = document.createElement('tr');
-		_try.appendChild(_thy);
-		for (var i = 0; i < def[0].length; i++) {
-			var _tdx = document.createElement('td');
-			_tdx.innerHTML = def[0][i];
-			_trx.appendChild(_tdx);
-
-			var _tdy = document.createElement('td');
-			_tdy.innerHTML = def[1][i];
-			_try.appendChild(_tdy);
-		};
-		dataBody.appendChild(_trx);
-		dataBody.appendChild(_try);
 	}
 
 </script>

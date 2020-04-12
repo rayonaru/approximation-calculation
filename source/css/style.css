@@ -22,8 +22,29 @@
 }
 
 .data-container {
-	margin: 20px 100px 20px -15px;
+	margin: 20px 100px 100px -15px;
 	padding-left: 130px;
 	display: flex; 
 	justify-content: center;
+}
+
+.data-input-container {
+	margin: 20px 100px 50px -15px;
+	padding-left: 130px;
+	display: flex; 
+	justify-content: space-between;
+}
+
+.data-input-container input {
+	height: 100px;
+	width: 800px;
+	overflow-x: visible;
+	word-wrap: break-word;
+}
+
+.button-container {
+	margin: 0px 100px 100px 100px;
+	padding-left: 130px;
+	display: flex; 
+	justify-content: flex-end;
 }
